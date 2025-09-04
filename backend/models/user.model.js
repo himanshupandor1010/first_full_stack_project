@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema(
   {
@@ -48,5 +49,38 @@ userSchema.pre("save", async function (next) {
     next(err);
   }
 });
+
+export const generateAccessToken = (user)=>{
+  if(!process.env.Access_Token_Secret_Key)
+  {
+    throw new Error("Access_Token_Secret_Key is missing in .env")
+  }
+
+  const payload ={
+    id:user._id,
+    email:user.email,
+  }
+
+  return jwt.sign(payload,process.env.Access_Token_Secret_Key,{
+    expiresIn:"1h"
+  })
+}
+export const generateRefreshToken = (user)=>{
+  if(!process.env.Refresh_Token_Secret_Key)
+  {
+    throw new Error("Refresh_Token_Secret_Key is missing in .env")
+  }
+  
+
+  const payload ={
+    id:user._id,
+    email:user.email,
+  }
+
+  return jwt.sign(payload,process.env.Refresh_Token_Secret_Key,{
+    expiresIn:"5d"
+  })
+}
+
 
 export const User = mongoose.model("User", userSchema);
