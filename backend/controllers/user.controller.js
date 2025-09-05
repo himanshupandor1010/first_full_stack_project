@@ -58,13 +58,12 @@ export const LoginHandler = async (req, res) => {
       if (isMatch) {
         const Access_token = generateAccessToken(user);
         const Refresh_token = generateRefreshToken(user);
+        const hashed_refresh_token = await bcrypt.hash(Refresh_token,10)
+        user.refreshToken=hashed_refresh_token
 
-        res.cookie("accessToken", Access_token, {
-          httpOnly: true,
-          secure: false, 
-          sameSite: "none",
-          maxAge: 1 * 60 * 60 * 1000,
-        });
+        await user.save()
+
+       
 
         res.cookie("refreshToken", Refresh_token, {
           httpOnly: true,
@@ -79,6 +78,7 @@ export const LoginHandler = async (req, res) => {
             _id: user._id,
             username: user.username,
             email: user.email,
+            Access_token
           },
         });
       } else {
@@ -98,3 +98,13 @@ export const LoginHandler = async (req, res) => {
     });
   }
 };
+
+
+export const ProfileHandler = async(req,res)=>{
+
+  const user = await User.findById(req.user.id);
+  if(!user) return res.status(404).json({message : "User not found"})
+  res.status(200).json({
+    message:"You are on user Profile you are here because you are logged in"
+  })
+}

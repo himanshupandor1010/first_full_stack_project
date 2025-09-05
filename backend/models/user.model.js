@@ -30,7 +30,12 @@ const userSchema = new mongoose.Schema(
         validator: (v) => !/\s/.test(v),
         message: "Email cannot contain spaces",
       },
+
+      
     },
+    refreshToken:{
+        type:String,
+      }
   },
   {
     timestamps: true,
