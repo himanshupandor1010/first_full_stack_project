@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -27,7 +28,7 @@ export const SignUpHandler = async (req, res) => {
     }
 
     const newUser = await User.create({ username, email, password });
-    console.log(newUser);
+    //console.log(newUser);
     return res.status(201).json({
       message: "User created succesfully",
       user: {
@@ -101,10 +102,47 @@ export const LoginHandler = async (req, res) => {
 
 
 export const ProfileHandler = async(req,res)=>{
+  try {
+    
+    const ProfileUser_id = req.params?.id
+    
+    console.log("first is Ok")
+    if(!mongoose.Types.ObjectId.isValid(ProfileUser_id)){
+      return res.status(400).json({message:"You are trying to get invalid user"})
+    }
+    console.log("second is Ok")
+    const ProfileUser = await User.findById(ProfileUser_id).select('-password')
 
-  const user = await User.findById(req.user.id);
-  if(!user) return res.status(404).json({message : "User not found"})
-  res.status(200).json({
-    message:"You are on user Profile you are here because you are logged in"
-  })
+    if(!ProfileUser){
+     return res.status(404).json({
+     //   error : error.message,
+        message: "User Profile that you want to access is not there"
+      })
+    }
+  
+  console.log("third is Ok")
+  
+    const LoggedInUser = await User.findById(req.user?._id);
+    if (!LoggedInUser) {
+      return res.status(401).json({ message: "you are not LoggedIn" });
+    }
+
+    if(ProfileUser._id.equals(LoggedInUser?._id)){
+       console.log("you are your own profile" ,LoggedInUser?.username)
+    }
+    else
+    { 
+     
+      console.log("your profile is",LoggedInUser?.username)
+      console.log("someone else profile",ProfileUser?.username)
+    }
+    
+    res.status(200).json({
+      message: "successfully reached on Profile"
+    })
+  } catch (error) {
+  return  res.status(500).json({
+      message: "something went wrong while finding user server side error"
+    })
+  }
 }

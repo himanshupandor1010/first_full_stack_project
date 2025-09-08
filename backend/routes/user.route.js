@@ -14,7 +14,7 @@ const router = express.Router()
 //SignUpRoute
 router.post("/signup",SignUpHandler);
 router.post("/login",LoginHandler);
-router.get("/profile",authMiddleware,ProfileHandler);
+router.get("/profile/:id",authMiddleware,ProfileHandler);
 
 
 export default router;

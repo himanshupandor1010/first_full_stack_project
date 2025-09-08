@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { User } from "../models/user.model.js";
 
 
 export const authMiddleware = async (req,res,next)=>{
@@ -11,7 +12,8 @@ export const authMiddleware = async (req,res,next)=>{
       })
   
      const decoded = jwt.verify(stored_AccessToken,process.env.Access_Token_Secret_Key)
-     req.user=decoded;
+     req.user= await User.findById(decoded.id).select("-password")
+     //console.log(req.user)
       next();
   
   } catch (error) {
