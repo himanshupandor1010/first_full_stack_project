@@ -1,5 +1,5 @@
 import express from "express";
-import { FollowUserHandler, LoginHandler, ProfileHandler, SignUpHandler } from "../controllers/user.controller.js";
+import { FollowUserHandler, LoginHandler, ProfileHandler, SignUpHandler, UnfollowUserHandler } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { FetchUsermiddleware } from "../middlewares/fetch.middleware.js";
 
@@ -19,6 +19,7 @@ router.post("/login",LoginHandler);
 //secureRoutes
 router.get("/profile/:id",authMiddleware,FetchUsermiddleware,ProfileHandler);
 router.post("/follow",authMiddleware,FollowUserHandler);
+router.post("/unfollow",authMiddleware,UnfollowUserHandler);
 
 
 

@@ -103,6 +103,13 @@ export const LoginHandler = async (req, res) => {
 
 
 export const ProfileHandler = async(req,res)=>{
+if(req.profile._id.equals(req.user?._id))
+{
+  console.log("your are your own profile")
+}
+else{
+  console.log("your are someone else profile")
+}
 res.status(200).json({
   message:`welcome to Profile of ${req.profile.username}`,
   profile: req.profile
@@ -112,7 +119,7 @@ res.status(200).json({
 
  export const FollowUserHandler = async(req,res)=>{
     try { 
-      const {userFollowed} = req.body;  // username  of user that main user want to follow
+     const{username:userFollowed} = req.body;  // username  of user that main user want to follow
      const mainUserId = req.user?._id;
      const mainUser = await User.findById(mainUserId).select("username");
 
@@ -157,6 +164,29 @@ res.status(200).json({
      
  }
 
+ export const UnfollowUserHandler = async(req,res)=>{
+  try {
+     const {username:userToUnfollow_name} = req.body; // username of user that you want to unfollow
+    
+     const userToUnfollow = await User.findOne({
+      username:userToUnfollow_name
+     }).select("_id")
+     if (!userToUnfollow) return; // handle user not found
 
+     const mainUserId = req.user?._id
+  
+     await Relation.findOneAndDelete({mainUser:mainUserId,userFollowed:userToUnfollow?._id})
 
-
+     res.status(200).json({
+      message:"User unfollow Succesfully"
+     })
+      console.log("User unfollow Succesfully")
+  
+  } catch (error) {
+    res.status(500).json({
+      message:`Something went wrong in UnfollowUserHandler`,
+      error:error
+    })
+    console.log("error in unfollowhandler")
+  }
+ }
