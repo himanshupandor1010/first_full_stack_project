@@ -6,10 +6,11 @@ const userRelationSchema= new mongoose.Schema({
           ref:"User",
           required:true,
     },
-      userWhoIsFollowedByMainUser:{
+      userFollowed:{
           type:mongoose.Schema.Types.ObjectId,
           ref:"User",
           required:true,
+         
     }
 },
     {
@@ -17,7 +18,7 @@ const userRelationSchema= new mongoose.Schema({
 })
 
 userRelationSchema.index(
-  { mainUser: 1, userWhoIsFollowedByMainUser: 1 },
+  { mainUser: 1, userFollowed: 1 },
   { unique: true }
 );
 

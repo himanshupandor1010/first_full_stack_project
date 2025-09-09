@@ -5,6 +5,7 @@ import {
   User,
 } from "../models/user.model.js";
 import bcrypt from "bcrypt";
+import { Relation } from "../models/userRelation.model.js";
 
 export const SignUpHandler = async (req, res) => {
   try {
@@ -102,47 +103,60 @@ export const LoginHandler = async (req, res) => {
 
 
 export const ProfileHandler = async(req,res)=>{
-  try {
-    
-    const ProfileUser_id = req.params?.id
-    
-    console.log("first is Ok")
-    if(!mongoose.Types.ObjectId.isValid(ProfileUser_id)){
-      return res.status(400).json({message:"You are trying to get invalid user"})
-    }
-    console.log("second is Ok")
-    const ProfileUser = await User.findById(ProfileUser_id).select('-password')
-
-    if(!ProfileUser){
-     return res.status(404).json({
-     //   error : error.message,
-        message: "User Profile that you want to access is not there"
-      })
-    }
-  
-  console.log("third is Ok")
-  
-    const LoggedInUser = await User.findById(req.user?._id);
-    if (!LoggedInUser) {
-      return res.status(401).json({ message: "you are not LoggedIn" });
-    }
-
-    if(ProfileUser._id.equals(LoggedInUser?._id)){
-       console.log("you are your own profile" ,LoggedInUser?.username)
-    }
-    else
-    { 
-     
-      console.log("your profile is",LoggedInUser?.username)
-      console.log("someone else profile",ProfileUser?.username)
-    }
-    
-    res.status(200).json({
-      message: "successfully reached on Profile"
-    })
-  } catch (error) {
-  return  res.status(500).json({
-      message: "something went wrong while finding user server side error"
-    })
-  }
+res.status(200).json({
+  message:`welcome to Profile of ${req.profile.username}`,
+  profile: req.profile
+})
 }
+
+
+ export const FollowUserHandler = async(req,res)=>{
+    try { 
+      const {userFollowed} = req.body;  // username  of user that main user want to follow
+     const mainUserId = req.user?._id;
+     const mainUser = await User.findById(mainUserId).select("username");
+
+      if (!userFollowed) {
+      return res.status(400).json({ message: "you have mention user that you want to follow" });
+    }
+
+     if (String(mainUser) === String(userFollowed)) {
+      return res.status(400).json({ message: "You cannot follow yourself" });
+    }
+
+    // ✅ Check if followed user actually exists
+    const userToFollow = await User.findOne({ username: userFollowed });
+    if (! userToFollow ) {
+      return res.status(404).json({ message: "User to follow not found" });
+    }
+    
+      const newFollow = await Relation.create({
+        mainUser,
+        userFollowed:userToFollow?._id
+      })
+    
+      return res.status(201).json(
+        {message1:"Followes successfully",
+         message2:`User ${mainUser.username} followed ${userToFollow.username} successfully`,
+      newFollow,}
+        
+         )
+    } catch (error) {
+      if(error.code===11000)
+      {
+        res.status(500).json({
+          message:"you are already follow this user"
+        })
+      }
+      res.status(500).json({ message: "Something went wrong in FollowUserHandler"});
+
+    }
+
+
+    
+     
+ }
+
+
+
+
