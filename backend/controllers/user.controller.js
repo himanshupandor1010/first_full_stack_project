@@ -72,6 +72,7 @@ export const LoginHandler = async (req, res) => {
           secure: false,
           sameSite: "none",
           maxAge: 5 * 24 * 60 * 60 * 1000,
+          path: "/",
         });
 
         res.status(200).json({
@@ -100,6 +101,40 @@ export const LoginHandler = async (req, res) => {
     });
   }
 };
+
+
+export const LogoutHandler = async(req,res)=>{
+try {
+  
+    const refreshToken = req.cookies?.refreshToken;
+    if(!refreshToken){
+      return res.status(400).json({
+        message:"No refresh token found"
+      })
+    }
+  
+    await User.updateOne(
+      {refreshToken:refreshToken},
+      {$unset:{ refreshToken:""}}   // remove refreshToken from DB
+    )
+  
+    res.clearCookie("refreshToken",{
+      httpOnly:true,
+      secure:process.env.NODE_ENV == "production",
+      sameSite:"Strict",
+      path:"/"
+    });
+  
+    return res.status(200).json({message:"Logged out successfully"})
+} catch (error) {
+   console.error(error)
+   res.status(500).json({message:"Server error"})
+}
+};
+
+
+
+
 
 
 export const ProfileHandler = async(req,res)=>{

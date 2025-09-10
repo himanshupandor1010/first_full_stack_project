@@ -39,7 +39,6 @@ export const Like_Unlike_Handler = async (req, res) => {
       const newLike = await Like.create({
         likeUser,
         post,
-  
       });
       
       const fetchLikeInfo = await getPostLikeInfo(post);

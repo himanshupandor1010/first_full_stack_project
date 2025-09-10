@@ -1,5 +1,5 @@
 import express from "express";
-import { FollowUserHandler, LoginHandler, ProfileHandler, SignUpHandler, UnfollowUserHandler } from "../controllers/user.controller.js";
+import { FollowUserHandler, LoginHandler, LogoutHandler, ProfileHandler, SignUpHandler, UnfollowUserHandler } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { FetchUsermiddleware } from "../middlewares/fetch.middleware.js";
 import { Like_Unlike_Handler, PostHandler } from "../controllers/post.controller.js";
@@ -17,6 +17,7 @@ const router = express.Router()
 //SignUpRoute
 router.post("/signup",SignUpHandler);
 router.post("/login",LoginHandler);
+router.post("/logout",LogoutHandler);
 
 //secureRoutes
 router.get("/profile/:id",authMiddleware,FetchUsermiddleware,ProfileHandler);
