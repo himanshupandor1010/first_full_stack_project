@@ -4,6 +4,7 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { FetchUsermiddleware } from "../middlewares/fetch.middleware.js";
 import { Like_Unlike_Handler, PostHandler } from "../controllers/post.controller.js";
 
+
 const router = express.Router()
 
 // router.get('/test',(req,res)=>{
@@ -23,7 +24,7 @@ router.post("/follow",authMiddleware,FollowUserHandler);
 router.post("/unfollow",authMiddleware,UnfollowUserHandler);
 router.post("/post",authMiddleware,PostHandler
 );
-router.post("/postId/like",authMiddleware,Like_Unlike_Handler)
+router.post("/postId/:id/like",authMiddleware,Like_Unlike_Handler)
 
 
 export default router;
