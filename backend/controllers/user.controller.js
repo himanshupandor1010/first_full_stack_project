@@ -127,14 +127,14 @@ res.status(200).json({
       return res.status(400).json({ message: "you have mention user that you want to follow" });
     }
 
-     if (String(mainUser) === String(userFollowed)) {
+     if (mainUser.username=== userFollowed) {
       return res.status(400).json({ message: "You cannot follow yourself" });
     }
 
     // ✅ Check if followed user actually exists
     const userToFollow = await User.findOne({ username: userFollowed });
     if (! userToFollow ) {
-      return res.status(404).json({ message: "User to follow not found" });
+      return res.status(404).json({ message: "User to follow is  not found" });
     }
     
       const newFollow = await Relation.create({
@@ -190,3 +190,6 @@ res.status(200).json({
     console.log("error in unfollowhandler")
   }
  }
+
+
+ 

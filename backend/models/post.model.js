@@ -12,6 +12,8 @@ const postSchema= new mongoose.Schema(
        caption:{
                type:String,
            },
+       
+    
 
 },{timestamps:true,})
 
