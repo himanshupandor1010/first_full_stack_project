@@ -132,11 +132,6 @@ try {
 }
 };
 
-
-
-
-
-
 export const ProfileHandler = async(req,res)=>{
 if(req.profile._id.equals(req.user?._id))
 {

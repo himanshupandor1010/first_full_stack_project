@@ -1,6 +1,7 @@
 import { Post } from "../models/post.model.js";
 import {Like } from "../models/like.model.js"
 import { getPostLikeInfo } from "../Hooks/usegetPostLikesInfo.js";
+import { Comment } from "../models/comment.model.js";
 
 export const PostHandler = async (req, res) => {
   try {
@@ -30,7 +31,7 @@ export const Like_Unlike_Handler = async (req, res) => {
     const isExist = await Like.findOne({ post: post, likeUser: likeUser });
     if (isExist) {
       await Like.findOneAndDelete({ post: post, likeUser: likeUser });
-       const fetchLikeInfo = await getPostLikeInfo(post);
+      const fetchLikeInfo = await getPostLikeInfo(post);
       res.status(200).json({
         message: "Post Unlike Successfully",
          LikeInfo:fetchLikeInfo
@@ -52,5 +53,34 @@ export const Like_Unlike_Handler = async (req, res) => {
     res.status(500).json({
       message: "Something went wrong in Like_Unlike_Handler",
     });
+  }
+};
+
+export const CommentHandler = async (req, res) => {
+  try {
+    const post = req.params.id; // id of post that you want to like
+    const commentUser = req.user?._id;
+    const { text } = req.body;
+   
+    console.log("1")
+
+    const newComment = await Comment.create({
+      commentUser,
+      post,
+      text
+    })
+
+    console.log("2")
+
+    res.status(200).json({
+       message:"comment added successfully",
+       newComment
+    })
+   
+  } catch (error) {
+    res.status(500).json({
+       message:"Something went wrong in Comment handler"
+    })
+   
   }
 };

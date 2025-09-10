@@ -16,14 +16,23 @@ export const getPostLikeInfo =  async (PostId)=>{
               as:"LikesInfo"
           }
         },
-
+        {
+          $lookup:{
+            from:"comments",
+            localField:"_id",
+            foreignField:"post",
+            as:"CommentsInfo"
+          }
+        },
         {
           $project:{
               _id: 1,
               LikesInfo:1,
               image:1,
               caption:1,
-              LikeCount : {$size:"$LikesInfo"}
+              CommentsInfo:1,
+              LikeCount : {$size:"$LikesInfo"},
+              CommentCount:{$size:"$CommentsInfo"}
           }
         },
   
@@ -31,8 +40,10 @@ export const getPostLikeInfo =  async (PostId)=>{
       
     ])
 
-        return result[0]||null// attach to req
-        console.error("Post fetch successfully")
+     console.error("Post fetch successfully")
+
+        return result[0]||null  
+       
       
   } catch (error) {
     console.error("Error in getPostLikeInfo")
