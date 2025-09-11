@@ -5,23 +5,34 @@ import { Comment } from "../models/comment.model.js";
 
 export const PostHandler = async (req, res) => {
   try {
-    const { post, caption } = req.body;
+
+    console.log("Enter in Post Handler")
+    const { caption } = req.body;
+    const post = req.file;  // single file
+
+    if (!post) return res.status(400).send("No image uploaded");
+    console.log(post)
+
     const postUser = req.user?._id;
+
     const NewUpload = await Post.create({
       postUser,
-      image: post,
-      caption: caption,
+      image: req.file.path, // save only the file path or URL
+      caption,
     });
+
     res.status(200).json({
-      message: "Post upload successfully",
+      message: "Post uploaded successfully",
       data: NewUpload,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       error: "Something went wrong in Post Handler",
     });
   }
 };
+
 
 export const Like_Unlike_Handler = async (req, res) => {
   try {

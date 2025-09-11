@@ -3,6 +3,7 @@ import { FollowUserHandler, LoginHandler, LogoutHandler, ProfileHandler, SignUpH
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { FetchUsermiddleware } from "../middlewares/fetch.middleware.js";
 import { CommentHandler, Like_Unlike_Handler, PostHandler } from "../controllers/post.controller.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 
 const router = express.Router()
@@ -23,10 +24,11 @@ router.post("/logout",LogoutHandler);
 router.get("/profile/:id",authMiddleware,FetchUsermiddleware,ProfileHandler);
 router.post("/follow",authMiddleware,FollowUserHandler);
 router.post("/unfollow",authMiddleware,UnfollowUserHandler);
-router.post("/post",authMiddleware,PostHandler
+router.post("/post",authMiddleware,upload.single('post'),PostHandler
 );
 router.post("/postId/:id/like",authMiddleware,Like_Unlike_Handler)
 router.post("/postId/:id/comment",authMiddleware,CommentHandler)
+
 
 
 export default router;
