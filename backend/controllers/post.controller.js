@@ -2,13 +2,14 @@ import { Post } from "../models/post.model.js";
 import {Like } from "../models/like.model.js"
 import { getPostLikeInfo } from "../Hooks/usegetPostLikesInfo.js";
 import { Comment } from "../models/comment.model.js";
+import { Profile } from "../models/profile.model.js";
 
 export const PostHandler = async (req, res) => {
   try {
 
     console.log("Enter in Post Handler")
     const { caption } = req.body;
-    const post = req.file;  // single file
+    const post =  req.file?.path;  // single file
 
     if (!post) return res.status(400).send("No image uploaded");
     console.log(post)
@@ -95,3 +96,48 @@ export const CommentHandler = async (req, res) => {
    
   }
 };
+
+
+export const EditProfileHandler = async(req,res)=>{
+    try {
+      const {profileUser} = req.params
+     const {bio,gender,TypeOfAccount} = req.body
+      const Avatar = req.file?.path
+     // console.log(isPrivate)
+     // console.log(Avatar)
+    const isPrivate = TypeOfAccount.toLowerCase() === "true";
+    console.log(isPrivate)
+    
+      
+      const isProfileExists = await Profile.findOne({profileUser})
+      if(isProfileExists){
+       const UpdatedProfile =await Profile.findOneAndUpdate(
+        { profileUser:profileUser},
+         { Avatar:Avatar,
+          bio:bio,
+          gender:gender,
+          isPrivate:isPrivate
+        },
+          {
+             new: true
+          }
+         )
+       return res.status(200).json({message:"Profile Updated Sucecssfully",UpdatedProfile})
+      }else
+      { 
+        const newProfile = await Profile.create({
+          Avatar,
+          bio,
+          gender,
+          isPrivate,
+          profileUser
+        })
+        return res.status(200).json({message:"Profile Created Sucecssfully",newProfile})
+      }
+      
+    } catch (error) {
+      return res.status(500).json({message:"Something Went Wrong in EditProfileHandler",error})
+    }
+     
+
+}
