@@ -32,9 +32,11 @@ export const FetchUsermiddleware = async(req,res, next)=>{
               from:"profiles",
               localField:"_id",
               foreignField:"profileUser",
-              as:"details"
+              as:"profiledetails"
             }
           },
+  
+         
           {
             $project: {
               username: 1,
@@ -42,10 +44,10 @@ export const FetchUsermiddleware = async(req,res, next)=>{
               Followers: "$Followers.mainUser",
               FollowingCount: { $size: "$Following" },
               FollowerCount: { $size: "$Followers" },
-              Avatar : "$details.Avatar",
-              Bio:"$details.bio",
-              Private:"$details.isPrivate"
-            }
+              Avatar : "$profiledetails.Avatar",
+              Bio:     "$profiledetails.bio",
+              Private:"$profiledetails.isPrivate",
+             }
           },
         ])
     

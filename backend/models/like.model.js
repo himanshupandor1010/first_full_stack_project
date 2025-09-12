@@ -6,6 +6,11 @@ const likeSchema= new mongoose.Schema(
             ref:"User",
             required: true 
         },
+        postUser:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:"User",
+            required: true 
+        },
        post:{
               type:mongoose.Schema.Types.ObjectId,
               ref:"Post",

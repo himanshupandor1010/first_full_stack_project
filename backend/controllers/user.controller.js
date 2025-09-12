@@ -132,19 +132,6 @@ try {
 }
 };
 
-export const ProfileHandler = async(req,res)=>{
-if(req.profile._id.equals(req.user?._id))
-{
-  console.log("your are your own profile")
-}
-else{
-  console.log("your are someone else profile")
-}
-res.status(200).json({
-  message:`welcome to Profile of ${req.profile.username}`,
-  profile: req.profile
-})
-}
 
 
  export const FollowUserHandler = async(req,res)=>{

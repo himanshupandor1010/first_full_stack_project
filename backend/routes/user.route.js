@@ -1,10 +1,11 @@
 import express from "express";
-import { FollowUserHandler, LoginHandler, LogoutHandler, ProfileHandler, SignUpHandler, UnfollowUserHandler } from "../controllers/user.controller.js";
+import { FollowUserHandler, LoginHandler, LogoutHandler, SignUpHandler, UnfollowUserHandler } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { FetchUsermiddleware } from "../middlewares/fetchProfile.middleware.js";
-import { CommentHandler, EditProfileHandler, Like_Unlike_Handler, PostHandler } from "../controllers/post.controller.js";
+import { CommentHandler, Like_Unlike_Handler, PostHandler } from "../controllers/post.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
-
+import { EditProfileHandler, ProfileHandler } from "../controllers/profile.controller.js";
+import { FetchPostmiddleware } from "../middlewares/fetchPost.middleware.js";
 
 const router = express.Router()
 
@@ -21,7 +22,7 @@ router.post("/login",LoginHandler);
 router.post("/logout",LogoutHandler);
 
 //secureRoutes
-router.get("/profile/:id",authMiddleware,FetchUsermiddleware,ProfileHandler);
+router.get("/profile/:id",authMiddleware,FetchUsermiddleware,FetchPostmiddleware,ProfileHandler);
 router.post("/profile/:profileUser/editprofile",authMiddleware,upload.single('Avatar'),EditProfileHandler);
 
 router.post("/follow",authMiddleware,FollowUserHandler);
