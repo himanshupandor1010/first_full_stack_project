@@ -52,14 +52,17 @@ export const EditProfileHandler = async(req,res)=>{
 
 export const ProfileHandler = async(req,res)=>{
 
- const {profileUser} = req.params                                //string
- const profileUserId = new mongoose.Types.ObjectId(profileUser); // objectId
+ const {profileUser} = req.params                              //string
+ const profileUserId = new mongoose.Types.ObjectId(profileUser);// objectId
+
+ console.log(profileUser)
+ console.log(req.user?._id)
 if(profileUserId.equals(req.user?._id))
 {
-  console.log("your are your own profile")
+  console.log("your are  on your own profile")
 }
 else{
-  console.log("your are someone else profile")
+  console.log("your are  on someone else profile")
 }
 res.status(200).json({
   message:`welcome to Profile of ${req.profile.username}`,

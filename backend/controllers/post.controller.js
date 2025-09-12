@@ -2,8 +2,7 @@ import { Post } from "../models/post.model.js";
 import {Like } from "../models/like.model.js"
 import { getPostLikeInfo } from "../Hooks/usegetPostLikesInfo.js";
 import { Comment } from "../models/comment.model.js";
-import { Profile } from "../models/profile.model.js";
-import mongoose from "mongoose";
+import { Bookmark } from "../models/bookmark.model.js";
 
 export const PostHandler = async (req, res) => {
   try {
@@ -99,3 +98,35 @@ export const CommentHandler = async (req, res) => {
 };
 
 
+export const BookMarkHandler = async(req,res)=>{
+try {
+    const post = req.params.id
+    const bookmark_user = req.user?._id
+  
+    const isExist = await Bookmark.findOne({post,bookmark_user})
+    if(isExist){
+    const saved=  await Bookmark.findOneAndDelete({post,bookmark_user})
+      res.status(200).json({
+          message: "Post Unsaved Successfully",
+          BookMarkInfo:saved
+        });
+    }
+    else
+    {
+      const newSave = await Bookmark.create({
+        post,
+        bookmark_user
+      })
+       res.status(200).json({
+          message: "Post saved Successfully",
+          BookMarkInfo:newSave
+        });
+    }
+} catch (error) {
+        res.status(500).json({
+          message: "Something Went Wrong in BookmarkHandler",
+          error:error
+  
+        });
+}
+}
