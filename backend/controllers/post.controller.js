@@ -3,6 +3,7 @@ import {Like } from "../models/like.model.js"
 import { getPostLikeInfo } from "../Hooks/usegetPostLikesInfo.js";
 import { Comment } from "../models/comment.model.js";
 import { Profile } from "../models/profile.model.js";
+import mongoose from "mongoose";
 
 export const PostHandler = async (req, res) => {
   try {
@@ -100,20 +101,24 @@ export const CommentHandler = async (req, res) => {
 
 export const EditProfileHandler = async(req,res)=>{
     try {
-      const {profileUser} = req.params
+      const {profileUser} = req.params   // this get string so we need to covert into ObjectId  // it also same name as in routes
      const {bio,gender,TypeOfAccount} = req.body
       const Avatar = req.file?.path
      // console.log(isPrivate)
      // console.log(Avatar)
     const isPrivate = TypeOfAccount.toLowerCase() === "true";
-    console.log(isPrivate)
+    //console.log(isPrivate)  
+    //console.log(profileUser)            // string
     
-      
+      const profileUserId = new mongoose.Types.ObjectId(profileUser); // objectId
+      console.log(profileUserId)
       const isProfileExists = await Profile.findOne({profileUser})
       if(isProfileExists){
        const UpdatedProfile =await Profile.findOneAndUpdate(
-        { profileUser:profileUser},
-         { Avatar:Avatar,
+        { profileUser:profileUserId},
+         {
+          profileUser:profileUserId,
+          Avatar:Avatar,
           bio:bio,
           gender:gender,
           isPrivate:isPrivate
@@ -126,11 +131,11 @@ export const EditProfileHandler = async(req,res)=>{
       }else
       { 
         const newProfile = await Profile.create({
+          profileUser:profileUserId,
           Avatar,
           bio,
           gender,
           isPrivate,
-          profileUser
         })
         return res.status(200).json({message:"Profile Created Sucecssfully",newProfile})
       }

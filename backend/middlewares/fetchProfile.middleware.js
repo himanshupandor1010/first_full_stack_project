@@ -18,6 +18,7 @@ export const FetchUsermiddleware = async(req,res, next)=>{
               as: "Following"
             }
          },
+
          {
             $lookup: {
               from: "relations",
@@ -27,18 +28,30 @@ export const FetchUsermiddleware = async(req,res, next)=>{
             }
           },
           {
+            $lookup:{
+              from:"profiles",
+              localField:"_id",
+              foreignField:"profileUser",
+              as:"details"
+            }
+          },
+          {
             $project: {
               username: 1,
               Following: "$Following.userFollowed",
               Followers: "$Followers.mainUser",
               FollowingCount: { $size: "$Following" },
-              FollowerCount: { $size: "$Followers" }
+              FollowerCount: { $size: "$Followers" },
+              Avatar : "$details.Avatar",
+              Bio:"$details.bio",
+              Private:"$details.isPrivate"
             }
           },
         ])
     
         req.profile= result[0]; // attach to req
         console.log("Profile fetch successfully")
+        console.log(result[0].Avatar)
         next();
     
     } catch (error) {
@@ -46,3 +59,4 @@ export const FetchUsermiddleware = async(req,res, next)=>{
         console.log("Somethin went wrong in fetch.middleware",error)
     }
 }
+
