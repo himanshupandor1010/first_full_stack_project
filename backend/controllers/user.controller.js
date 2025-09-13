@@ -54,8 +54,8 @@ export const LoginHandler = async (req, res) => {
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
     });
-       const stored_refreshToken = req.cookies?.refreshToken;
-      if (stored_refreshToken) {
+    const stored_refreshToken = req.cookies?.refreshToken;
+    if (stored_refreshToken) {
       try {
         // verify Refresh token
         jwt.verify(stored_refreshToken, process.env.refresh_Token_Secret_Key);
@@ -80,10 +80,10 @@ export const LoginHandler = async (req, res) => {
       if (isMatch) {
         const Access_token = generateAccessToken(user);
         const Refresh_token = generateRefreshToken(user);
-        const hashed_refresh_token = await bcrypt.hash(Refresh_token,10)
-        user.refreshToken=hashed_refresh_token
+        const hashed_refresh_token = await bcrypt.hash(Refresh_token, 10);
+        user.refreshToken = hashed_refresh_token;
 
-        await user.save()
+        await user.save();
 
         res.cookie("refreshToken", Refresh_token, {
           httpOnly: true,
@@ -99,7 +99,7 @@ export const LoginHandler = async (req, res) => {
             _id: user._id,
             username: user.username,
             email: user.email,
-            Access_token
+            Access_token,
           },
         });
       } else {
@@ -120,111 +120,81 @@ export const LoginHandler = async (req, res) => {
   }
 };
 
-
-export const LogoutHandler = async(req,res)=>{
-try {
-  
+export const LogoutHandler = async (req, res) => {
+  try {
     const refreshToken = req.cookies?.refreshToken;
-    if(!refreshToken){
+    if (!refreshToken) {
       return res.status(400).json({
-        message:"You are already loggedOut"
-      })
+        message: "You are already loggedOut",
+      });
     }
-  
+
     await User.updateOne(
-      {refreshToken:refreshToken},
-      {$unset:{ refreshToken:""}}   // remove refreshToken from DB
-    )
-  
-    res.clearCookie("refreshToken",{
-      httpOnly:true,
-      secure:process.env.NODE_ENV == "production",
-      sameSite:"Strict",
-      path:"/"
+      { refreshToken: refreshToken },
+      { $unset: { refreshToken: "" } } // remove refreshToken from DB
+    );
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV == "production",
+      sameSite: "Strict",
+      path: "/",
     });
-  
-    return res.status(200).json({message:"Logged out successfully"})
-} catch (error) {
-   console.error(error)
-   res.status(500).json({message:"Server error"})
-}
+
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
-
-
- export const FollowUserHandler = async(req,res)=>{
-    try { 
-     const{username:userFollowed} = req.body;  // username  of user that main user want to follow
-     const mainUserId = req.user?._id;
-     const mainUser = await User.findById(mainUserId).select("username");
-
-      if (!userFollowed) {
-      return res.status(400).json({ message: "you have mention user that you want to follow" });
-    }
-
-     if (mainUser.username=== userFollowed) {
-      return res.status(400).json({ message: "You cannot follow yourself" });
-    }
-
-    // ✅ Check if followed user actually exists
-    const userToFollow = await User.findOne({ username: userFollowed });
-    if (! userToFollow ) {
-      return res.status(404).json({ message: "User to follow is  not found" });
-    }
-    
-      const newFollow = await Relation.create({
-        mainUser,
-        userFollowed:userToFollow?._id
-      })
-    
-      return res.status(201).json(
-        {message1:"Followes successfully",
-         message2:`User ${mainUser.username} followed ${userToFollow.username} successfully`,
-      newFollow,}
-        
-         )
-    } catch (error) {
-      if(error.code===11000)
-      {
-        res.status(500).json({
-          message:"you are already follow this user"
-        })
-      }
-      res.status(500).json({ message: "Something went wrong in FollowUserHandler"});
-
-    }
-
-
-    
-     
- }
-
- export const UnfollowUserHandler = async(req,res)=>{
+export const FollowUnFollowUserHandler = async (req, res) => {
   try {
-     const {username:userToUnfollow_name} = req.body; // username of user that you want to unfollow
-    
-     const userToUnfollow = await User.findOne({
-      username:userToUnfollow_name
-     }).select("_id")
-     if (!userToUnfollow) return; // handle user not found
+    const { profileUser } = req.params; // username  of user that main user want to follow
+    const LoggedInUser = req.user?._id;
+    const mainUser = await User.findById(LoggedInUser).select("username");
+    const userToFollow = await User.findById(profileUser).select("username");
 
-     const mainUserId = req.user?._id
-  
-     await Relation.findOneAndDelete({mainUser:mainUserId,userFollowed:userToUnfollow?._id})
+    if (LoggedInUser === profileUser) {
+      return res
+        .status(400)
+        .json({ message: "you can not follow unfollow your self" });
+    }
 
-     res.status(200).json({
-      message:"User unfollow Succesfully"
-     })
-      console.log("User unfollow Succesfully")
-  
+    if (!userToFollow) {
+      return res.status(404).json({ message: "User to follow not found" });
+    }
+
+    const isFollowed = await Relation.findOneAndDelete({
+      mainUser: LoggedInUser,
+      userFollowed: profileUser,
+    });
+
+    if (!isFollowed) {
+      const newFollow = await Relation.create({
+        mainUser: LoggedInUser,
+        userFollowed: profileUser,
+      });
+      return res
+        .status(200)
+        .json({
+          message1: "Follow successfully",
+          message2: `User ${mainUser.username} followed ${userToFollow.username} successfully`,
+          newFollow,
+        });
+    } else {
+      return res
+        .status(200)
+        .json({
+          message1: "unFollow successfully",
+          message2: `User ${mainUser.username} unfollow ${userToFollow.username} successfully`,
+          unfollow: isFollowed,
+        });
+    }
   } catch (error) {
-    res.status(500).json({
-      message:`Something went wrong in UnfollowUserHandler`,
-      error:error
-    })
-    console.log("error in unfollowhandler")
+    res
+      .status(500)
+      .json({ message: "Something went wrong in FollowUnFollowHandler" });
   }
- }
+};
 
-
- 
