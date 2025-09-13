@@ -51,12 +51,11 @@ export const EditProfileHandler = async(req,res)=>{
 
 export const ProfileHandler = async(req,res)=>{
 
- const {profileUser} = req.params                               //string
-
-
- console.log(profileUser)
+ const {profileUser} = req.params                             
+ const LoggedInUser = req.user?.id
+ console.log(LoggedInUser)
  console.log(req.user?._id)
-if(profileUser === req.user?._id)
+if(profileUser === LoggedInUser )
 {
   console.log("your are  on your own profile")
 }
