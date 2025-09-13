@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 export const FetchUsermiddleware = async(req,res, next)=>{
     try {
-        const  userId = req.params.id||req.user._id;
+        const  userId = req.params.profileUser;
     
         const result = await User.aggregate([
          {   $match: {_id: new mongoose.Types.ObjectId(userId)}},

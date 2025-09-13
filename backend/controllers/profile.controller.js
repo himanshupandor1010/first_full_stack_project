@@ -5,22 +5,21 @@ import mongoose from "mongoose";
 export const EditProfileHandler = async(req,res)=>{
     try {
      const {profileUser} = req.params   // this get string so we need to covert into ObjectId  // it also same name as in routes
-     const {bio,gender,TypeOfAccount} = req.body
+     const {bio,gender,isPrivateAccount} = req.body
       const Avatar = req.file?.path
-     // console.log(isPrivate)
-     // console.log(Avatar)
-    const isPrivate = TypeOfAccount.toLowerCase() === "true";
-    //console.log(isPrivate)  
-    //console.log(profileUser)            // string
-    
-      const profileUserId = new mongoose.Types.ObjectId(profileUser); // objectId
-      console.log(profileUserId)
+     const LoggedInUser = req?.user.id
+    const isPrivate = isPrivateAccount.toLowerCase() === "true"  
+     if(!(LoggedInUser===profileUser))
+     {
+       return res.status(400).json({message:"you can not update other user Profile"})
+      
+     }
       const isProfileExists = await Profile.findOne({profileUser})
       if(isProfileExists){
        const UpdatedProfile =await Profile.findOneAndUpdate(
-        { profileUser:profileUserId},
+        { profileUser:profileUser},
          {
-          profileUser:profileUserId,
+          profileUser:profileUser,
           Avatar:Avatar,
           bio:bio,
           gender:gender,
@@ -34,7 +33,7 @@ export const EditProfileHandler = async(req,res)=>{
       }else
       { 
         const newProfile = await Profile.create({
-          profileUser:profileUserId,
+          profileUser:profileUser,
           Avatar,
           bio,
           gender,
@@ -52,12 +51,12 @@ export const EditProfileHandler = async(req,res)=>{
 
 export const ProfileHandler = async(req,res)=>{
 
- const {profileUser} = req.params                              //string
- const profileUserId = new mongoose.Types.ObjectId(profileUser);// objectId
+ const {profileUser} = req.params                               //string
+
 
  console.log(profileUser)
  console.log(req.user?._id)
-if(profileUserId.equals(req.user?._id))
+if(profileUser === req.user?._id)
 {
   console.log("your are  on your own profile")
 }
@@ -66,7 +65,7 @@ else{
 }
 res.status(200).json({
   message:`welcome to Profile of ${req.profile.username}`,
-  profile: req.profile,
-  posts:req.posts
+  profile: req.profile,                                        // comes From fetchProfilemiddleware
+  posts:req.posts                                              // comes From fetchPostmiddleware
 })
 }
