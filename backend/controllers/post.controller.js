@@ -74,17 +74,12 @@ export const CommentHandler = async (req, res) => {
     const post = req.params.id; // id of post that you want to like
     const commentUser = req.user?._id;
     const { text } = req.body;
-   
-    console.log("1")
 
     const newComment = await Comment.create({
       commentUser,
       post,
       text
     })
-
-    console.log("2")
-
     res.status(200).json({
        message:"comment added successfully",
        newComment
@@ -100,9 +95,9 @@ export const CommentHandler = async (req, res) => {
 export const DeleteCommentHandler = async(req,res)=>{
 
 try {
-  const LoggedInUser = req.user?._id  
+  const LoggedInUser = req.user?._id  // get it from authmiddleware
   const {commentId }= req.params     //string
-  const {id} = req.params
+  const {id} = req.params            //string
   console.log(commentId)
   const LoggedInUser_Comments  = await Comment.findOne({commentUser:LoggedInUser,_id:commentId,post:id})  // find particular comment in particular post by loggedIn user 
   if(LoggedInUser_Comments){
@@ -155,5 +150,39 @@ try {
         });
 }
 }
+
+export const DeletePostHandler = async(req,res)=>{
+ try {
+  const { id: postId } = req.params;
+  const postUser = req.user?.id
+  console.log(postId)
+  const isPostExist =  await Post.findOneAndDelete({postUser:postUser,_id:postId})  // delete post
+  console.log(isPostExist)
+
+  if(isPostExist)
+  {
+  
+    await Comment.deleteMany({post:postId})    //delete all comments on this post 
+    await Bookmark.deleteMany({post:postId})   //delete all bookmark on this post
+    await Like.deleteMany({post:postId})       //delete all likes on this post 
+     res.status(200).json({
+        message:"Post deleted successfully",
+       
+     })
+  }
+  else{
+     res.status(404).json({
+     message:"Post is Not Found or You try do delete someone else Post ",
+  })
+  }
+  
+  
+ } catch (error) {
+     res.status(500).json({
+        message:"Something Went wrong in DeletePostHandler",
+     })
+ }
+}
+
 
 
