@@ -54,6 +54,26 @@ export const LoginHandler = async (req, res) => {
     const user = await User.findOne({
       $or: [{ username: identifier }, { email: identifier }],
     });
+       const stored_refreshToken = req.cookies?.refreshToken;
+      if (stored_refreshToken) {
+      try {
+        // verify Refresh token
+        jwt.verify(stored_refreshToken, process.env.refresh_Token_Secret_Key);
+
+        // If no error, token is valid (not expired)
+        return res.status(401).json({
+          message: "already logged in. Please logout first.",
+        });
+      } catch (err) {
+        // If error is TokenExpiredError → allow login
+        if (err.name !== "TokenExpiredError") {
+          return res.status(401).json({
+            message: "Invalid token. Please logout first.",
+          });
+        }
+        // if expired, continue with login
+      }
+    }
 
     if (user) {
       const isMatch = await bcrypt.compare(password, user.password);
@@ -64,8 +84,6 @@ export const LoginHandler = async (req, res) => {
         user.refreshToken=hashed_refresh_token
 
         await user.save()
-
-       
 
         res.cookie("refreshToken", Refresh_token, {
           httpOnly: true,
@@ -109,7 +127,7 @@ try {
     const refreshToken = req.cookies?.refreshToken;
     if(!refreshToken){
       return res.status(400).json({
-        message:"No refresh token found"
+        message:"You are already loggedOut"
       })
     }
   
