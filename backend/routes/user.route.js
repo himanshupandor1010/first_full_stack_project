@@ -2,7 +2,7 @@ import express from "express";
 import { FollowUserHandler, LoginHandler, LogoutHandler, SignUpHandler, UnfollowUserHandler } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { FetchUsermiddleware } from "../middlewares/fetchProfile.middleware.js";
-import { BookMarkHandler, CommentHandler, Like_Unlike_Handler, PostHandler } from "../controllers/post.controller.js";
+import { BookMarkHandler, CommentHandler, DeleteCommentHandler, Like_Unlike_Handler, PostHandler } from "../controllers/post.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { EditProfileHandler, ProfileHandler } from "../controllers/profile.controller.js";
 import { FetchPostmiddleware } from "../middlewares/fetchPost.middleware.js";
@@ -19,7 +19,7 @@ const router = express.Router()
 //SignUpRoute
 router.post("/signup",SignUpHandler);
 router.post("/login",LoginHandler);
-router.post("/logout",LogoutHandler);
+
 
 //secureRoutes
 router.get("/profile/:profileUser",authMiddleware,FetchUsermiddleware,FetchPostmiddleware,ProfileHandler);
@@ -31,8 +31,9 @@ router.post("/post",authMiddleware,upload.single('post'),PostHandler  //uploadin
 );
 router.post("/postId/:id/like",authMiddleware,Like_Unlike_Handler)
 router.post("/postId/:id/comment",authMiddleware,CommentHandler)
+router.delete("/postId/:id/comment/:commentId/deleteComment",authMiddleware,DeleteCommentHandler)
 router.post("/postId/:id/bookmark",authMiddleware,BookMarkHandler)
 
-
+router.post("/logout",authMiddleware,LogoutHandler);
 
 export default router;

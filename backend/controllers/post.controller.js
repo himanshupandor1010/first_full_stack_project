@@ -3,6 +3,7 @@ import {Like } from "../models/like.model.js"
 import { getPostLikeInfo } from "../Hooks/usegetPostLikesInfo.js";
 import { Comment } from "../models/comment.model.js";
 import { Bookmark } from "../models/bookmark.model.js";
+import mongoose from "mongoose";
 
 export const PostHandler = async (req, res) => {
   try {
@@ -96,6 +97,31 @@ export const CommentHandler = async (req, res) => {
   }
 };
 
+export const DeleteCommentHandler = async(req,res)=>{
+
+try {
+  const LoggedInUser = req.user?._id  
+  const {commentId }= req.params     //string
+  const {id} = req.params
+  console.log(commentId)
+  const LoggedInUser_Comments  = await Comment.findOne({commentUser:LoggedInUser,_id:commentId,post:id})  // find particular comment in particular post by loggedIn user 
+  if(LoggedInUser_Comments){
+   await Comment.findOne({commentUser:LoggedInUser,_id:commentId})
+   res.status(200).json({
+    message:"Comment delete sucessfully",
+    deletedComment:LoggedInUser_Comments
+  })
+  }else{
+    res.status(404).json({
+    message:"Comment was not found",
+  })
+  }
+} catch (error) {
+  res.status(404).json({
+    message:"Somethin went wrong in commentHandler",
+  })
+}
+}
 
 export const BookMarkHandler = async(req,res)=>{
 try {
@@ -129,3 +155,5 @@ try {
         });
 }
 }
+
+
