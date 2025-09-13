@@ -88,7 +88,6 @@ export const CommentHandler = async (req, res) => {
        message:"comment added successfully",
        newComment
     })
-   
   } catch (error) {
     res.status(500).json({
        message:"Something went wrong in Comment handler"
